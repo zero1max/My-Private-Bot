@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from keyboards.keybords import *
 
-ADMIN_ID = 'ADMIN_ID'
+ADMIN_ID = "ADMIN_ID"
 
 #-------------------------FOR HASH STATES -----------------------
 class HashState(StatesGroup):
@@ -23,14 +23,56 @@ class Answer(StatesGroup):
 #---------------------------------------------------START MAIN--------------------------------------------------------------
 @router.message(CommandStart()) 
 async def start(msg: Message):
+    full_name = msg.from_user.full_name
+    surname = msg.from_user.last_name or ''
+    user_id = msg.from_user.id
+
     db.create_table()
+    db.add_user(user_id, full_name, surname)
     if msg.from_user.id == ADMIN_ID:
+        await msg.answer_sticker('CAACAgIAAxkBAAMHZdstv1FOKr6gphvJjivr8M8KsskAAlQAA0G1Vgxqt_jHCI0B-jQE')
         await msg.answer("<b>Assalomu aleykum Muhammadjon!</b>")
     else:
         await msg.answer_sticker('CAACAgIAAxkBAAMHZdstv1FOKr6gphvJjivr8M8KsskAAlQAA0G1Vgxqt_jHCI0B-jQE')
         await msg.answer(f"<b>Assalomu aleykum </b>{msg.from_user.full_name}<b>!😊\nMening shaxsiy botimga xush kelibsiz!👨🏻‍💻</b>")
-        await msg.answer("<b>Taklif va savollaringiz bo'lsa yozishingiz mumkin!✍🏻</b>", reply_markup=send_msg)
+        await check_subscription(msg)
+        
+async def check_subscription(message: Message):
+    channel_ids = ["@firstchannel", "@secondchannel"]  # Kanal username'lari yoki ID'lari
+    channel_urls = {
+        "@zero1max_channel": "https://t.me/firstchannel",
+        "@zeromaxs_movies": "https://t.me/secondchannel"
+    }
+    user_id = message.from_user.id
+    subscribed_channels = set()  # Obuna bo'lgan kanallar ro'yxati
 
+    # Har bir kanalni tekshirib chiqamiz
+    for channel_id in channel_ids:
+        try:
+            member = await bot.get_chat_member(chat_id=channel_id, user_id=user_id)
+            if member.status != 'left':
+                subscribed_channels.add(channel_id)  # Obuna bo'lgan kanallar ro'yxatiga qo'shamiz
+        except Exception as e:
+            print(f"Kanal tekshirishda xatolik: {channel_id} - {e}")
+
+    # Obuna bo'lmagan kanallarni aniqlaymiz
+    not_subscribed_channels = set(channel_ids) - subscribed_channels
+
+    # `inline_keyboard` ro'yxatini yaratamiz
+    inline_keyboard = []
+
+    for channel_id in not_subscribed_channels:
+        inline_keyboard.append([InlineKeyboardButton(text=f"{channel_id[1:]}", url=channel_urls[channel_id])])
+
+    markup = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+
+    if not_subscribed_channels:
+        await message.answer(
+            "Kanallarga obuna bo'lishingizni so'raymiz.\nObuna bo'lgandan so'ng /start buyrug'ini yuboring!\nIltimos, quyidagi kanallarga obuna bo'ling:👇🏻",
+            reply_markup=markup
+        )
+    else:
+        await message.answer("<b>Taklif va savollaringiz bo'lsa yozishingiz mumkin!✍🏻</b>", reply_markup=send_msg)
 
 #--------------------------------------------------Savol yuborish--------------------------------------------------------
 @router.message(F.text == "Savol yuborish✍🏻")

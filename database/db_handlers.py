@@ -11,31 +11,40 @@ class Database:
         self.cursor = self.connect.cursor()
 
     def create_table(self):
-        self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
-                username TEXT NOT NULL,
-                user_id INTEGER NOT NULL,
-                contact TEXT NOT NULL
-            )
-        """)
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS users(
+            id INTEGER PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            full_name TEXT NOT NULL,
+            surname TEXT NOT NULL
+        )''')
         self.connect.commit()
-        
-    def add_user(self, name, contact):
-        self.cursor.execute("""
-            INSERT INTO users (name, contact) VALUES (?, ?)
-        """, (name, contact))
-        self.connect.commit()
+
+    def add_user(self, user_id, full_name, surname):
+        self.cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
+        if self.cursor.fetchone()[0] == 0:
+            self.cursor.execute("INSERT INTO users (user_id, full_name, surname) VALUES (?, ?, ?)", (user_id, full_name, surname))
+            self.connect.commit()
+        else:
+            pass
 
     def select_users(self):
         self.cursor.execute("SELECT * FROM users") 
         return self.cursor.fetchall()
 
-    def select_user(self, id):
-        self.cursor.execute("SELECT * FROM users WHERE id = ?", (id,))
-        return self.cursor.fetchone()    
+    def select_user(self,id):
+        self.cursor.execute("SELECT * FROM users WHERE id = ?",(id,)) 
+        return self.cursor.fetchone()
     
+    def delete_one(self, user_id, value):
+        self.cursor.execute(f"DELETE FROM users WHERE {user_id}=?",(value,))
+        self.connect.commit()
+
+    def update_product(self,id,user_id,full_name,surname):
+        self.cursor.execute("UPDATE users SET user_id = ?, full_name = ?, surname = ? WHERE id = ?",
+                            (user_id,full_name,surname)
+                            ) 
+        self.connect.commit()
+
     def close(self):
         if self.cursor:
             self.cursor.close()

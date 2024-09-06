@@ -35,16 +35,17 @@ async def start(msg: Message):
     else:
         await msg.answer_sticker('CAACAgIAAxkBAAMHZdstv1FOKr6gphvJjivr8M8KsskAAlQAA0G1Vgxqt_jHCI0B-jQE')
         await msg.answer(
-            f"<b>Assalomu aleykum </b>{msg.from_user.full_name}<b>!😊\nMening shaxsiy botimga xush kelibsiz!👨🏻‍💻</b>\n\n"
-            f"<b>Bot haqida qisqacha!</b>\n\n"
-            f"/id - Buyrug'i yordamida o'z ID ingizni bilishingiz!\n\n"
-            f"/hash - Buyrug'i yordamida ma'lumotlaringizni hashlash, ya'ni, ularni kriptografik kodga aylantirish. "
-            f"Bu xesh funksiyalari orqali ma'lumotlaringizni xavfsiz saqlash imkoniyatini beradi. Xeshlangan ma'lumot "
-            f"qayta tiklanmaydi, bu esa uni parollarni yoki shaxsiy ma'lumotlarni himoya qilish uchun ideal qiladi.\n\n"
-            f"<b>Qo'shimcha buyruqlar:</b>\n"
-            f"/help - Botning imkoniyatlari haqida to'liq ma'lumot olish.\n"
-            f"/info - Botning yaratilish tarixi va dasturchi haqida ma'lumot.\n\n"
-            f"Yana savollaringiz bo'lsa, bemalol yozing! Botimizdan foydalanishingizdan mamnunmiz! 😊")
+            f"<b>Assalomu aleykum, {msg.from_user.full_name}!</b> 😊\n"
+            f"👨🏻‍💻 <b>Mening shaxsiy botimga xush kelibsiz!</b>\n\n"
+            f"<b>Bot haqida qisqacha ma'lumot:</b>\n"
+            f"/id - O'zingizning Telegram ID raqamingizni bilish uchun bu buyruqni ishlating.\n"
+            f"/hash - Matningizni kriptografik xesh kodga aylantirish. "
+            f"Bu funksiya orqali siz ma'lumotlaringizni xavfsiz saqlashingiz mumkin. Xeshlangan ma'lumotlar qayta tiklanmaydi, "
+            f"bu esa parollar va shaxsiy ma'lumotlarni himoya qilish uchun juda foydali.\n"
+            f"/help - Bot imkoniyatlari va undan foydalanish bo'yicha to'liq ma'lumot olish.\n"
+            f"/info - Bot yaratilish tarixi va dasturchi haqida qisqacha ma'lumot.\n\n"
+            f"Yana savollaringiz yoki takliflaringiz bo'lsa, bemalol yozishingiz mumkin! "
+            f"Botimizdan foydalanayotganingizdan xursandmiz! 😊")
 
         await check_subscription(msg)
         

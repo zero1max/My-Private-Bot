@@ -47,6 +47,7 @@ async def start(msg: Message):
             f"Yana savollaringiz yoki takliflaringiz bo'lsa, bemalol yozishingiz mumkin! "
             f"Botimizdan foydalanayotganingizdan xursandmiz! 😊")
 
+
         await check_subscription(msg)
         
 async def check_subscription(message: Message):
@@ -139,6 +140,20 @@ async def echo_id(msg: Message):
 @router.message(Command('help'))
 async def help(msg: Message):
     await msg.reply("<b>Botda qandaydur uzulushlar yoki muammolar yuzaga kelsa @zero_1_max ga murojaat qiling!</b>")
+
+#------------------------------------------------INFO-------------------------------------------------------
+@router.message(Command('info'))
+async def info(msg: Message):
+    await msg.answer(
+        "<b>Bot haqida ma'lumot:</b>\n\n"
+        "Bu bot sizga bir qancha qulay xizmatlarni taqdim etish uchun yaratilgan. "
+        "Bot orqali siz o'zingizning ID raqamingizni bilib olishingiz, matnlaringizni xavfsiz tarzda hashlashingiz, "
+        "yoki boshqa foydali buyruqlardan foydalanishingiz mumkin.\n\n"
+        "<b>Yaratilgan sana:</b> 2024 yil, avgust\n"
+        "<b>Dasturchi:</b> @zero_1_max\n\n"
+        "Dasturchi bilan bog'lanish yoki qo'shimcha savollar uchun yuqoridagi username orqali murojaat qilishingiz mumkin. "
+        "Botimizdan foydalanayotganingiz uchun tashakkur! 😊"
+    )
 
 #------------------------------------------------Sticker--------------------------------------------------------
 @router.message(F.sticker)

@@ -34,14 +34,25 @@ async def start(msg: Message):
         await msg.answer("<b>Assalomu aleykum Muhammadjon!</b>")
     else:
         await msg.answer_sticker('CAACAgIAAxkBAAMHZdstv1FOKr6gphvJjivr8M8KsskAAlQAA0G1Vgxqt_jHCI0B-jQE')
-        await msg.answer(f"<b>Assalomu aleykum </b>{msg.from_user.full_name}<b>!😊\nMening shaxsiy botimga xush kelibsiz!👨🏻‍💻</b>")
+        await msg.answer(
+            f"<b>Assalomu aleykum </b>{msg.from_user.full_name}<b>!😊\nMening shaxsiy botimga xush kelibsiz!👨🏻‍💻</b>\n\n"
+            f"<b>Bot haqida qisqacha!</b>\n\n"
+            f"/id - Buyrug'i yordamida o'z ID ingizni bilishingiz!\n\n"
+            f"/hash - Buyrug'i yordamida ma'lumotlaringizni hashlash, ya'ni, ularni kriptografik kodga aylantirish. "
+            f"Bu xesh funksiyalari orqali ma'lumotlaringizni xavfsiz saqlash imkoniyatini beradi. Xeshlangan ma'lumot "
+            f"qayta tiklanmaydi, bu esa uni parollarni yoki shaxsiy ma'lumotlarni himoya qilish uchun ideal qiladi.\n\n"
+            f"<b>Qo'shimcha buyruqlar:</b>\n"
+            f"/help - Botning imkoniyatlari haqida to'liq ma'lumot olish.\n"
+            f"/info - Botning yaratilish tarixi va dasturchi haqida ma'lumot.\n\n"
+            f"Yana savollaringiz bo'lsa, bemalol yozing! Botimizdan foydalanishingizdan mamnunmiz! 😊")
+
         await check_subscription(msg)
         
 async def check_subscription(message: Message):
-    channel_ids = ["@firstchannel", "@secondchannel"]  # Kanal username'lari yoki ID'lari
+    channel_ids = ["@zero1max_channel", "@zeromaxs_movies"]  # Kanal username'lari yoki ID'lari
     channel_urls = {
-        "@zero1max_channel": "https://t.me/firstchannel",
-        "@zeromaxs_movies": "https://t.me/secondchannel"
+        "@zero1max_channel": "https://t.me/zero1max_channel",
+        "@zeromaxs_movies": "https://t.me/zeromaxs_movies"
     }
     user_id = message.from_user.id
     subscribed_channels = set()  # Obuna bo'lgan kanallar ro'yxati

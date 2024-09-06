@@ -134,6 +134,11 @@ async def hash_msg(msg: Message, state: FSMContext):
 async def echo_id(msg: Message):
      await msg.answer(f"Sizning ID: <b>{msg.from_user.id}</b>")
 
+#------------------------------------------------HELP------------------------------------------------------
+@router.message(Command('help'))
+async def help(msg: Message):
+    await msg.reply("<b>Botda qandaydur uzulushlar yoki muammolar yuzaga kelsa @zero_1_max ga murojaat qiling!</b>")
+
 #------------------------------------------------Sticker--------------------------------------------------------
 @router.message(F.sticker)
 async def echo_sticker(msg: Message):

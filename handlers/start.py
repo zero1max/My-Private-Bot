@@ -57,27 +57,24 @@ async def start(msg: Message):
         await check_subscription(msg)
         
 async def check_subscription(message: Message):
-    channel_ids = ["@zero1max_channel", "@zeromaxs_movies"]  # Kanal username'lari yoki ID'lari
+    channel_ids = ["@first_channel", "@zeromaxs_movies"]  # Kanal username'lari yoki ID'lari
     channel_urls = {
-        "@zero1max_channel": "https://t.me/zero1max_channel",
+        "@first_channel": "https://t.me/first_channel",
         "@zeromaxs_movies": "https://t.me/zeromaxs_movies"
     }
     user_id = message.from_user.id
-    subscribed_channels = set()  # Obuna bo'lgan kanallar ro'yxati
+    subscribed_channels = set()  
 
-    # Har bir kanalni tekshirib chiqamiz
     for channel_id in channel_ids:
         try:
             member = await bot.get_chat_member(chat_id=channel_id, user_id=user_id)
             if member.status != 'left':
-                subscribed_channels.add(channel_id)  # Obuna bo'lgan kanallar ro'yxatiga qo'shamiz
+                subscribed_channels.add(channel_id) 
         except Exception as e:
             print(f"Kanal tekshirishda xatolik: {channel_id} - {e}")
 
-    # Obuna bo'lmagan kanallarni aniqlaymiz
     not_subscribed_channels = set(channel_ids) - subscribed_channels
 
-    # `inline_keyboard` ro'yxatini yaratamiz
     inline_keyboard = []
 
     for channel_id in not_subscribed_channels:

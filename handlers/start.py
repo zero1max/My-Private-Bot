@@ -57,10 +57,10 @@ async def start(msg: Message):
         await check_subscription(msg)
         
 async def check_subscription(message: Message):
-    channel_ids = ["@first_channel", "@zeromaxs_movies"]  # Kanal username'lari yoki ID'lari
+    channel_ids = ["@first_channel", "@second_channel"]  # Kanal username'lari yoki ID'lari
     channel_urls = {
         "@first_channel": "https://t.me/first_channel",
-        "@zeromaxs_movies": "https://t.me/zeromaxs_movies"
+        "@second_channel": "https://t.me/second_channel"
     }
     user_id = message.from_user.id
     subscribed_channels = set()  

@@ -20,6 +20,12 @@ class MSG(StatesGroup):
 class Answer(StatesGroup):
     asnwer = State()
 
+class anonimMSG(StatesGroup):
+    messaga = State()
+
+class anonimAnswer(StatesGroup):
+    asnwer = State()
+
 #---------------------------------------------------START MAIN--------------------------------------------------------------
 @router.message(CommandStart()) 
 async def start(msg: Message):
@@ -101,7 +107,7 @@ async def question(msg: Message, state: FSMContext):
     user_name = msg.from_user.full_name
     answer_btn = InlineKeyboardButton(text='Javob qaytarish', callback_data=f'answer:{user_id}')
     answer_key = InlineKeyboardMarkup(inline_keyboard=[[answer_btn]])
-    await bot.send_message(chat_id=ADMIN_ID, text=f"Savol yuboruvchi: {user_name}\nSavol: {text}", reply_markup=answer_key)
+    await bot.send_message(chat_id=ADMIN_ID, text=f"<b>💬Sizda yangi xabar mavjud</b>\n\n<b>Savol yuboruvchi:</b> {user_name}\n<b>Savol:</b> {text}", reply_markup=answer_key)
     await state.clear()
 
 @router.callback_query(F.data.startswith('answer:'))
@@ -116,6 +122,34 @@ async def answer(msg:Message, state:FSMContext):
     data = await state.get_data()
     await bot.send_message(chat_id = int(data['user_id']), text=f"<b>Admindan javob:</b>\n{msg.text}\n\n<b>Savolingiz uchun rahmat!</b>")
 
+#--------------------------------------------------Anonim Savol yuborish--------------------------------------------------------
+@router.message(F.text == "Anonim savol yuborish🤫✍️")
+async def get_msg(msg: Message, state: FSMContext):
+    await state.set_state(anonimMSG.messaga)
+    await msg.answer(f"Savollaringizni yuboring {msg.from_user.full_name}!")
+
+@router.message(anonimMSG.messaga)
+async def question(msg: Message, state: FSMContext):
+    await msg.answer("Admin tez oradi sizga javob qaytaradi!")
+    text = msg.text
+    user_id = msg.from_user.id
+    user_name = msg.from_user.full_name
+    answer_btn = InlineKeyboardButton(text='Javob qaytarish', callback_data=f'answer:{user_id}')
+    answer_key = InlineKeyboardMarkup(inline_keyboard=[[answer_btn]])
+    await bot.send_message(chat_id=ADMIN_ID, text=f"<b>💬Sizda yangi xabar mavjud</b>\n\n<b>Savol</b>: {text}", reply_markup=answer_key)
+    await state.clear()
+
+@router.callback_query(F.data.startswith('answer:'))
+async def answeruser(call: CallbackQuery, state: FSMContext):
+    user_id = call.data.split(':')
+    await state.update_data(user_id = user_id[1])
+    await state.set_state(anonimAnswer.asnwer)
+    await bot.send_message(ADMIN_ID, text= f"ID: {user_id[1]}\nJavob yozishingiz mumkin Muhammadjon")
+
+@router.message(anonimAnswer.asnwer)
+async def answer(msg:Message, state:FSMContext):
+    data = await state.get_data()
+    await bot.send_message(chat_id = int(data['user_id']), text=f"<b>Admindan javob:</b>\n{msg.text}\n\n<b>Savolingiz uchun rahmat!</b>")
 
 #---------------------------------------------------HASHLIB ----------------------------------------------------------------
 @router.message(Command('hash'))

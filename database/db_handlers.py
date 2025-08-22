@@ -1,52 +1,41 @@
-import sqlite3
-from dataclasses import dataclass
+import aiosqlite
 
-@dataclass
-class Database:
-    connect: sqlite3.Connection = None
-    cursor: sqlite3.Cursor = None
 
-    def __post_init__(self):
-        self.connect = sqlite3.connect('users.db')
-        self.cursor = self.connect.cursor()
+DB = 'users.db'
 
-    def create_table(self):
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS users(
-            id INTEGER PRIMARY KEY,
-            user_id INTEGER NOT NULL,
-            full_name TEXT NOT NULL,
-            surname TEXT NOT NULL
-        )''')
-        self.connect.commit()
+async def setup_users():
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS users(
+                id INTEGER PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                full_name TEXT NOT NULL,
+                surname TEXT NOT NULL
+            )
+        """)
+        await db.commit()
 
-    def add_user(self, user_id, full_name, surname):
-        self.cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
-        if self.cursor.fetchone()[0] == 0:
-            self.cursor.execute("INSERT INTO users (user_id, full_name, surname) VALUES (?, ?, ?)", (user_id, full_name, surname))
-            self.connect.commit()
-        else:
-            pass
+async def add_user(user_id, full_name, surname):
+    async with aiosqlite.connect(DB) as db:
+        # Avval user mavjudligini tekshiramiz
+        async with db.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,)) as cursor:
+            count = (await cursor.fetchone())[0] # type: ignore
 
-    def select_users(self):
-        self.cursor.execute("SELECT * FROM users") 
-        return self.cursor.fetchall()
+        if count == 0:  # Agar mavjud bo‘lmasa qo‘shamiz
+            await db.execute(
+                "INSERT INTO users (user_id, full_name, surname) VALUES (?, ?, ?)",
+                (user_id, full_name, surname)
+            )
+            await db.commit()
 
-    def select_user(self,id):
-        self.cursor.execute("SELECT * FROM users WHERE id = ?",(id,)) 
-        return self.cursor.fetchone()
-    
-    def delete_one(self, user_id, value):
-        self.cursor.execute(f"DELETE FROM users WHERE {user_id}=?",(value,))
-        self.connect.commit()
+async def select_users():
+    async with aiosqlite.connect(DB) as db:
+        async with db.execute("SELECT * FROM users") as cursor:
+            rows = await cursor.fetchall()
+            return rows   # [(id, user_id, full_name, surname), ...]
 
-    def update_product(self,id,user_id,full_name,surname):
-        self.cursor.execute("UPDATE users SET user_id = ?, full_name = ?, surname = ? WHERE id = ?",
-                            (user_id,full_name,surname)
-                            ) 
-        self.connect.commit()
-
-    def close(self):
-        if self.cursor:
-            self.cursor.close()
-        if self.connect:
-            self.connect.close()
+async def select_user(id):
+    async with aiosqlite.connect(DB) as db:
+        async with db.execute("SELECT * FROM users WHERE id = ?", (id,)) as cursor:
+            row = await cursor.fetchone()
+            return row    # (id, user_id, full_name, surname) yoki None

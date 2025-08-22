@@ -1,47 +1,37 @@
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from aiogram import F
-from aiogram.filters import CommandStart, Command
+import os
 import hashlib
-from loader import router, bot, db
+from dotenv import load_dotenv
+#
+from aiogram import F
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.filters import CommandStart, Command
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+#
+from loader import router, bot
 from keyboards.keybords import *
+from database.db_handlers import add_user
+from .states import *
 
-ADMIN_ID = "ADMIN_ID"
 
-#-------------------------FOR HASH STATES -----------------------
-class HashState(StatesGroup):
-    hashmessage = State()
+load_dotenv()
 
-#-------------------------FOR CHAT STATES------------------------
-class MSG(StatesGroup):
-    messaga = State()
-
-class Answer(StatesGroup):
-    asnwer = State()
-
-class anonimMSG(StatesGroup):
-    messaga = State()
-
-class anonimAnswer(StatesGroup):
-    asnwer = State()
+ADMIN_ID = os.getenv("ADMIN_ID")
 
 #---------------------------------------------------START MAIN--------------------------------------------------------------
 @router.message(CommandStart()) 
 async def start(msg: Message):
-    full_name = msg.from_user.full_name
-    surname = msg.from_user.last_name or ''
-    user_id = msg.from_user.id
+    full_name = msg.from_user.full_name # type: ignore
+    surname = msg.from_user.last_name or '' # type: ignore
+    user_id = msg.from_user.id # type: ignore
 
-    db.create_table()
-    db.add_user(user_id, full_name, surname)
-    if msg.from_user.id == ADMIN_ID:
+    add_user(user_id, full_name, surname) # type: ignore
+    if msg.from_user.id == ADMIN_ID: # type: ignore
         await msg.answer_sticker('CAACAgIAAxkBAAMHZdstv1FOKr6gphvJjivr8M8KsskAAlQAA0G1Vgxqt_jHCI0B-jQE')
         await msg.answer("<b>Assalomu aleykum Muhammadjon!</b>")
     else:
         await msg.answer_sticker('CAACAgIAAxkBAAMHZdstv1FOKr6gphvJjivr8M8KsskAAlQAA0G1Vgxqt_jHCI0B-jQE')
         await msg.answer(
-            f"<b>Assalomu aleykum, {msg.from_user.full_name}!</b> 😊\n"
+            f"<b>Assalomu aleykum, {msg.from_user.full_name}!</b> 😊\n" # type: ignore
             f"👨🏻‍💻 <b>Mening shaxsiy botimga xush kelibsiz!</b>\n\n"
             f"<b>Bot haqida qisqacha ma'lumot:</b>\n"
             f"/id - O'zingizning Telegram ID raqamingizni bilish uchun bu buyruqni ishlating.\n"
@@ -57,12 +47,12 @@ async def start(msg: Message):
         await check_subscription(msg)
         
 async def check_subscription(message: Message):
-    channel_ids = ["@first_channel", "@second_channel"]  # Kanal username'lari yoki ID'lari
+    channel_ids = ["@zero1max", "@zero1maxdev"]  # Kanal username'lari yoki ID'lari
     channel_urls = {
-        "@first_channel": "https://t.me/first_channel",
-        "@second_channel": "https://t.me/second_channel"
+        "@zero1max": "https://t.me/zero1max",
+        "@zero1maxdev": "https://t.me/zero1maxdev"
     }
-    user_id = message.from_user.id
+    user_id = message.from_user.id # type: ignore
     subscribed_channels = set()  
 
     for channel_id in channel_ids:
@@ -90,63 +80,6 @@ async def check_subscription(message: Message):
     else:
         await message.answer("<b>Taklif va savollaringiz bo'lsa yozishingiz mumkin!✍🏻</b>", reply_markup=send_msg)
 
-#--------------------------------------------------Savol yuborish--------------------------------------------------------
-@router.message(F.text == "Savol yuborish✍🏻")
-async def get_msg(msg: Message, state: FSMContext):
-    await state.set_state(MSG.messaga)
-    await msg.answer(f"Savollaringizni yuboring {msg.from_user.full_name}!")
-
-@router.message(MSG.messaga)
-async def question(msg: Message, state: FSMContext):
-    await msg.answer("Admin tez oradi sizga javob qaytaradi!")
-    text = msg.text
-    user_id = msg.from_user.id
-    user_name = msg.from_user.full_name
-    answer_btn = InlineKeyboardButton(text='Javob qaytarish', callback_data=f'answer:{user_id}')
-    answer_key = InlineKeyboardMarkup(inline_keyboard=[[answer_btn]])
-    await bot.send_message(chat_id=ADMIN_ID, text=f"<b>💬Sizda yangi xabar mavjud</b>\n\n<b>Savol yuboruvchi:</b> {user_name}\n<b>Savol:</b> {text}", reply_markup=answer_key)
-    await state.clear()
-
-@router.callback_query(F.data.startswith('answer:'))
-async def answeruser(call: CallbackQuery, state: FSMContext):
-    user_id = call.data.split(':')
-    await state.update_data(user_id = user_id[1])
-    await state.set_state(Answer.asnwer)
-    await bot.send_message(ADMIN_ID, text= f"ID: {user_id[1]}\nJavob yozishingiz mumkin Muhammadjon")
-
-@router.message(Answer.asnwer)
-async def answer(msg:Message, state:FSMContext):
-    data = await state.get_data()
-    await bot.send_message(chat_id = int(data['user_id']), text=f"<b>Admindan javob:</b>\n{msg.text}\n\n<b>Savolingiz uchun rahmat!</b>")
-
-#--------------------------------------------------Anonim Savol yuborish--------------------------------------------------------
-@router.message(F.text == "Anonim savol yuborish🤫✍️")
-async def get_msg(msg: Message, state: FSMContext):
-    await state.set_state(anonimMSG.messaga)
-    await msg.answer(f"Savollaringizni yuboring {msg.from_user.full_name}!")
-
-@router.message(anonimMSG.messaga)
-async def question(msg: Message, state: FSMContext):
-    await msg.answer("Admin tez oradi sizga javob qaytaradi!")
-    text = msg.text
-    user_id = msg.from_user.id
-    user_name = msg.from_user.full_name
-    answer_btn = InlineKeyboardButton(text='Javob qaytarish', callback_data=f'answer:{user_id}')
-    answer_key = InlineKeyboardMarkup(inline_keyboard=[[answer_btn]])
-    await bot.send_message(chat_id=ADMIN_ID, text=f"<b>💬Sizda yangi xabar mavjud</b>\n\n<b>Savol</b>: {text}", reply_markup=answer_key)
-    await state.clear()
-
-@router.callback_query(F.data.startswith('answer:'))
-async def answeruser(call: CallbackQuery, state: FSMContext):
-    user_id = call.data.split(':')
-    await state.update_data(user_id = user_id[1])
-    await state.set_state(anonimAnswer.asnwer)
-    await bot.send_message(ADMIN_ID, text= f"ID: {user_id[1]}\nJavob yozishingiz mumkin Muhammadjon")
-
-@router.message(anonimAnswer.asnwer)
-async def answer(msg:Message, state:FSMContext):
-    data = await state.get_data()
-    await bot.send_message(chat_id = int(data['user_id']), text=f"<b>Admindan javob:</b>\n{msg.text}\n\n<b>Savolingiz uchun rahmat!</b>")
 
 #---------------------------------------------------HASHLIB ----------------------------------------------------------------
 @router.message(Command('hash'))
@@ -165,7 +98,7 @@ async def hash_msg(msg: Message, state: FSMContext):
 #------------------------------------------------ID--------------------------------------------------------
 @router.message(Command('id'))
 async def echo_id(msg: Message):
-     await msg.answer(f"Sizning ID: <b>{msg.from_user.id}</b>")
+     await msg.answer(f"Sizning ID: <b>{msg.from_user.id}</b>") # type: ignore
 
 #------------------------------------------------HELP------------------------------------------------------
 @router.message(Command('help'))
@@ -189,23 +122,23 @@ async def info(msg: Message):
 #------------------------------------------------Sticker--------------------------------------------------------
 @router.message(F.sticker)
 async def echo_sticker(msg: Message):
-    await msg.answer(f"Siz yuborgan stiker identifikatori:\n{msg.sticker.file_id}")
+    await msg.answer(f"Siz yuborgan stiker identifikatori:\n{msg.sticker.file_id}") # type: ignore
 
 #-------------------------------------------------Photo--------------------------------------------------------
 @router.message(F.photo)
 async def echo_photo(msg: Message):
-    photo_id = msg.photo[-1].file_id
+    photo_id = msg.photo[-1].file_id # type: ignore
     await msg.answer(f"Siz yuborgan photo identifikatori: \n{photo_id}")
 
 #-------------------------------------------------Document--------------------------------------------------------
 @router.message(F.document)
 async def echo_document(msg: Message):
-    document_id = msg.document.file_id
+    document_id = msg.document.file_id # type: ignore
     await msg.answer(f"Siz yuborgan document identifikatori: \n{document_id}")
 
 #-------------------------------------------------Video--------------------------------------------------------
 @router.message(F.video)
 async def echo_video(msg: Message):
-    video_id = msg.video.file_id
+    video_id = msg.video.file_id # type: ignore
     await msg.answer(f"Siz yuborgan video identifikatori: \n{video_id}")
     

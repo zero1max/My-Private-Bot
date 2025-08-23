@@ -17,3 +17,14 @@ class anonimMSG(StatesGroup):
 
 class anonimAnswer(StatesGroup):
     asnwer = State()
+
+# ------------------------ CREATE EVENT -----------------------------
+class EventStates(StatesGroup):
+    name = State()
+    date = State()
+    time = State()
+    location = State()
+    image = State()
+
+class DeleteIDStates(StatesGroup):
+    id = State()

@@ -1,21 +1,15 @@
-import os
 import hashlib
-from dotenv import load_dotenv
 #
 from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 #
-from loader import router, bot
+from .states import *
+from loader import router, bot, ADMIN_ID
 from keyboards.keybords import *
 from database.db_handlers import add_user
-from .states import *
 
-
-load_dotenv()
-
-ADMIN_ID = os.getenv("ADMIN_ID")
 
 #---------------------------------------------------START MAIN--------------------------------------------------------------
 @router.message(CommandStart()) 
@@ -24,11 +18,11 @@ async def start(msg: Message):
     surname = msg.from_user.last_name or '' # type: ignore
     user_id = msg.from_user.id # type: ignore
 
-    add_user(user_id, full_name, surname) # type: ignore
-    if msg.from_user.id == ADMIN_ID: # type: ignore
+    if user_id == ADMIN_ID:
         await msg.answer_sticker('CAACAgIAAxkBAAMHZdstv1FOKr6gphvJjivr8M8KsskAAlQAA0G1Vgxqt_jHCI0B-jQE')
-        await msg.answer("<b>Assalomu aleykum Muhammadjon!</b>")
+        await msg.answer("<b>Assalomu aleykum Muhammadjon!</b>", reply_markup=admin_key)
     else:
+        await add_user(user_id, full_name, surname)
         await msg.answer_sticker('CAACAgIAAxkBAAMHZdstv1FOKr6gphvJjivr8M8KsskAAlQAA0G1Vgxqt_jHCI0B-jQE')
         await msg.answer(
             f"<b>Assalomu aleykum, {msg.from_user.full_name}!</b> 😊\n" # type: ignore
@@ -119,26 +113,26 @@ async def info(msg: Message):
         "Botimizdan foydalanayotganingiz uchun tashakkur! 😊"
     )
 
-#------------------------------------------------Sticker--------------------------------------------------------
-@router.message(F.sticker)
-async def echo_sticker(msg: Message):
-    await msg.answer(f"Siz yuborgan stiker identifikatori:\n{msg.sticker.file_id}") # type: ignore
+# #------------------------------------------------Sticker--------------------------------------------------------
+# @router.message(F.sticker)
+# async def echo_sticker(msg: Message):
+#     await msg.answer(f"Siz yuborgan stiker identifikatori:\n{msg.sticker.file_id}") # type: ignore
 
-#-------------------------------------------------Photo--------------------------------------------------------
-@router.message(F.photo)
-async def echo_photo(msg: Message):
-    photo_id = msg.photo[-1].file_id # type: ignore
-    await msg.answer(f"Siz yuborgan photo identifikatori: \n{photo_id}")
+# #-------------------------------------------------Photo--------------------------------------------------------
+# @router.message(F.photo)
+# async def echo_photo(msg: Message):
+#     photo_id = msg.photo[-1].file_id # type: ignore
+#     await msg.answer(f"Siz yuborgan photo identifikatori: \n{photo_id}")
 
-#-------------------------------------------------Document--------------------------------------------------------
-@router.message(F.document)
-async def echo_document(msg: Message):
-    document_id = msg.document.file_id # type: ignore
-    await msg.answer(f"Siz yuborgan document identifikatori: \n{document_id}")
+# #-------------------------------------------------Document--------------------------------------------------------
+# @router.message(F.document)
+# async def echo_document(msg: Message):
+#     document_id = msg.document.file_id # type: ignore
+#     await msg.answer(f"Siz yuborgan document identifikatori: \n{document_id}")
 
-#-------------------------------------------------Video--------------------------------------------------------
-@router.message(F.video)
-async def echo_video(msg: Message):
-    video_id = msg.video.file_id # type: ignore
-    await msg.answer(f"Siz yuborgan video identifikatori: \n{video_id}")
+# #-------------------------------------------------Video--------------------------------------------------------
+# @router.message(F.video)
+# async def echo_video(msg: Message):
+#     video_id = msg.video.file_id # type: ignore
+#     await msg.answer(f"Siz yuborgan video identifikatori: \n{video_id}")
     

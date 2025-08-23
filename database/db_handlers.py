@@ -39,3 +39,48 @@ async def select_user(id):
         async with db.execute("SELECT * FROM users WHERE id = ?", (id,)) as cursor:
             row = await cursor.fetchone()
             return row    # (id, user_id, full_name, surname) yoki None
+        
+# ============================================================================================
+
+async def setup_events():
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS events(
+                id INTEGER PRIMARY KEY,
+                event_name TEXT NOT NULL,
+                event_date TEXT NOT NULL,
+                event_time TEXT NOT NULL,
+                event_location TEXT NOT NULL,
+                event_image TEXT
+            )
+        """)
+        await db.commit()
+
+
+async def add_event(event_name, event_date, event_time, event_location, event_image=None):
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("""
+            INSERT INTO events (event_name, event_date, event_time, event_location, event_image)
+            VALUES (?, ?, ?, ?, ?)
+        """, (event_name, event_date, event_time, event_location, event_image))
+        await db.commit()
+
+
+async def select_events():
+    async with aiosqlite.connect(DB) as db:
+        async with db.execute("SELECT * FROM events") as cursor:
+            rows = await cursor.fetchall()
+            return rows   # [(id, name, date, time, location, image), ...]
+
+
+async def select_event(id):
+    async with aiosqlite.connect(DB) as db:
+        async with db.execute("SELECT * FROM events WHERE id = ?", (id,)) as cursor:
+            row = await cursor.fetchone()
+            return row    # (id, name, date, time, location, image) yoki None
+
+
+async def delete_event(id):
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("DELETE FROM events WHERE id = ?", (id,))
+        await db.commit()

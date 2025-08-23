@@ -1,18 +1,10 @@
-import os
-from dotenv import load_dotenv
-#
 from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 #
-from loader import router, bot
-from keyboards.keybords import *
 from .states import *
-
-
-load_dotenv()
-
-ADMIN_ID = os.getenv("ADMIN_ID")
+from loader import router, bot, ADMIN_ID
+from keyboards.keybords import *
 
 #--------------------------------------------------Savol yuborish--------------------------------------------------------
 @router.message(F.text == "Savol yuborish✍🏻")

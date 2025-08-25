@@ -45,6 +45,7 @@ async def event_detail(callback: CallbackQuery):
         f"📌 <b>{event[1]}</b>\n\n"
         f"📅 Sana: {event[2]}\n"
         f"⏰ Vaqti: {event[3]}\n"
+        f"📝 Ro'yxatdan o'tish: {event[6]}\n"
         f"📍 Manzil: {event[4]}"
     )
 
@@ -104,7 +105,7 @@ async def start_add_event(callback: CallbackQuery, state: FSMContext):
         await callback.answer("⛔ Bu faqat admin uchun!", show_alert=True)
         return
     await state.set_state(EventStates.name)
-    await callback.message.edit_text("📝 Tadbir nomini kiriting:") # type: ignore
+    await callback.message.edit_text("📝 Tadbir nomini kiriting:")  # type: ignore
 
 
 # Tadbir nomi
@@ -135,6 +136,14 @@ async def event_time(msg: Message, state: FSMContext):
 @router.message(EventStates.location)
 async def event_location(msg: Message, state: FSMContext):
     await state.update_data(event_location=msg.text)
+    await state.set_state(EventStates.register)
+    await msg.answer("🔗 Tadbir uchun ro‘yxatdan o‘tish linkini yuboring:")
+
+
+# Ro‘yxat linki
+@router.message(EventStates.register)
+async def event_register(msg: Message, state: FSMContext):
+    await state.update_data(event_register=msg.text)
     await state.set_state(EventStates.image)
     await msg.answer("🖼 Tadbir rasmi linkini yuboring (yoki 'yo‘q' deb yozing):")
 
@@ -159,10 +168,12 @@ async def event_image(msg: Message, state: FSMContext):
         data["event_date"],
         data["event_time"],
         data["event_location"],
+        data["event_register"],
         image
     )
     await state.clear()
     await msg.answer("✅ Tadbir muvaffaqiyatli qo‘shildi!")
+
 
 # -------------------------------------------------- IDs Events ------------------------------------------------
 

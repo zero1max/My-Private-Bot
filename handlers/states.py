@@ -24,6 +24,7 @@ class EventStates(StatesGroup):
     date = State()
     time = State()
     location = State()
+    register = State()
     image = State()
 
 class DeleteIDStates(StatesGroup):
